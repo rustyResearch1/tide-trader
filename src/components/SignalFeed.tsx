@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { SignalCard } from './SignalCard';
 import { TradingSignal } from '@/types/trading';
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const API_BASE = `${SUPABASE_URL}/functions/v1`;
+import { supabase } from '@/integrations/supabase/client';
 
 export function SignalFeed() {
   const [signals, setSignals] = useState<TradingSignal[]>([]);
@@ -15,12 +13,13 @@ export function SignalFeed() {
   // Fetch signals from API
   const fetchSignals = async () => {
     try {
-      const response = await fetch(`${API_BASE}/signals`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch signals');
+      const { data, error: supabaseError } = await supabase.functions.invoke('signals');
+      
+      if (supabaseError) {
+        throw new Error(supabaseError.message);
       }
-      const data = await response.json();
-      setSignals(data.signals || []);
+      
+      setSignals(data?.signals || []);
       setError(null);
     } catch (err) {
       console.error('Error fetching signals:', err);
@@ -87,7 +86,7 @@ export function SignalFeed() {
           <div className="text-center py-8">
             <div className="text-muted-foreground">No signals yet. Send some data to the API!</div>
             <div className="text-xs text-muted-foreground mt-1">
-              POST to: {API_BASE}/signals
+              POST to: https://bjgayswhifoubltaaexg.supabase.co/functions/v1/signals
             </div>
           </div>
         )}
