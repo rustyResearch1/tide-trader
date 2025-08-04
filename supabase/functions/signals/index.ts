@@ -137,7 +137,7 @@ serve(async (req) => {
       const signalId = body.id || crypto.randomUUID();
       const timestamp = body.timestamp || Date.now();
 
-      // Convert frontend format to database format
+      // Convert frontend format to database format, handling both camelCase and your CURL field names
       const dbSignal = {
         id: signalId,
         timestamp,
@@ -153,18 +153,18 @@ serve(async (req) => {
         has_image: body.hasImage,
         market_cap: body.marketCap,
         fdv: body.fdv,
-        price_usd: body.priceUSD,
-        volume_24h: body.volume24h,
+        price_usd: body.priceUSD || body.priceUsd, // Handle both priceUSD and priceUsd
+        volume_24h: body.volume24h || body.volume, // Handle both volume24h and volume
         liquidity_amount: body.liquidityAmount,
-        age: body.age,
+        age: body.age || body.ageFormatted, // Handle both age and ageFormatted
         total_holders: body.totalHolders,
         risk_level: body.riskLevel,
         fresh_wallet_percentage: body.freshWalletPercentage,
         lp_percentage: body.lpPercentage,
-        twitter_url: body.twitterUrl,
-        website_url: body.websiteUrl,
-        dexscreener_url: body.dexscreenerUrl,
-        defined_url: body.definedUrl,
+        twitter_url: body.twitterUrl || body.socialLinks?.twitter, // Handle nested socialLinks
+        website_url: body.websiteUrl || body.socialLinks?.website, // Handle nested socialLinks
+        dexscreener_url: body.dexscreenerUrl || body.chartLinks?.dexscreener, // Handle nested chartLinks
+        defined_url: body.definedUrl || body.chartLinks?.defined, // Handle nested chartLinks
         signal_type: body.signalType,
         alert_type: body.alertType,
         source: body.source,
@@ -183,7 +183,7 @@ serve(async (req) => {
         original_wallets: body.originalWallets,
         original_message: body.originalMessage,
         rick_analysis: body.rickAnalysis,
-        api_version: body.apiVersion,
+        api_version: body.apiVersion || body.version, // Handle both apiVersion and version
       };
 
       // Insert into database
