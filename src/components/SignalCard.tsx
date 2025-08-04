@@ -147,7 +147,7 @@ export function SignalCard({ signal }: SignalCardProps) {
           <div className="space-y-1">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Price:</span>
-              <span className="text-foreground">${signal.priceUSD?.toFixed(6) || 'N/A'}</span>
+              <span className="text-foreground">${signal.priceUSD != null ? signal.priceUSD.toFixed(6) : 'N/A'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Age:</span>
