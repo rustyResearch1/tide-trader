@@ -24,14 +24,16 @@ export function SignalCard({ signal }: SignalCardProps) {
     return `${days}d ago`;
   };
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | null | undefined) => {
+    if (num == null) return '$0.00';
     if (num >= 1000000000) return `$${(num / 1000000000).toFixed(1)}B`;
     if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
     if (num >= 1000) return `$${(num / 1000).toFixed(0)}K`;
     return `$${num.toFixed(2)}`;
   };
 
-  const formatSOL = (amount: number) => {
+  const formatSOL = (amount: number | null | undefined) => {
+    if (amount == null) return '0.00 SOL';
     return `${amount.toFixed(2)} SOL`;
   };
 
@@ -118,9 +120,9 @@ export function SignalCard({ signal }: SignalCardProps) {
         <div>
           <div className="text-xs text-muted-foreground mb-1">Current ROI</div>
           <div className={`font-semibold ${
-            signal.currentROI >= 0 ? 'text-success' : 'text-danger'
+            (signal.currentROI ?? 0) >= 0 ? 'text-success' : 'text-danger'
           }`}>
-            {signal.currentROI >= 0 ? '+' : ''}{signal.currentROI.toFixed(1)}%
+            {(signal.currentROI ?? 0) >= 0 ? '+' : ''}{(signal.currentROI ?? 0).toFixed(1)}%
           </div>
         </div>
       </div>
