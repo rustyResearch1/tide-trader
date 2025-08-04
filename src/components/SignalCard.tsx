@@ -85,6 +85,16 @@ export function SignalCard({ signal }: SignalCardProps) {
           <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/30">
             {signal.alertType || 'New Smart Buy Signal'}
           </Badge>
+          {signal.tokenImage && (
+            <img 
+              src={signal.tokenImage.startsWith('data:') ? signal.tokenImage : `data:image/png;base64,${signal.tokenImage}`}
+              alt={`${signal.tokenSymbol} token`}
+              className="w-6 h-6 rounded-full"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
           <span className="text-xl font-bold text-foreground">
             ${signal.tokenSymbol}
           </span>
