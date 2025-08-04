@@ -1,8 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { SignalCard } from './SignalCard';
 import { TradingSignal } from '@/types/trading';
-import { supabase } from '@/integrations/supabase/client';
 
 export function SignalFeed() {
   const [signals, setSignals] = useState<TradingSignal[]>([]);
@@ -13,11 +13,22 @@ export function SignalFeed() {
   // Fetch signals from API
   const fetchSignals = async () => {
     try {
-      const { data, error: supabaseError } = await supabase.functions.invoke('signals');
+      console.log('Fetching signals...');
+      const response = await fetch('https://bjgayswhifoubltaaexg.supabase.co/functions/v1/signals', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqZ2F5c3doaWZvdWJsdGFhZXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMjE5NjgsImV4cCI6MjA2OTg5Nzk2OH0.hqxde3kXAf5lHRCjzlXYaMEKMHG3Yo0xWEzSZOMzpCM`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqZ2F5c3doaWZvdWJsdGFhZXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzMjE5NjgsImV4cCI6MjA2OTg5Nzk2OH0.hqxde3kXAf5lHRCjzlXYaMEKMHG3Yo0xWEzSZOMzpCM'
+        }
+      });
       
-      if (supabaseError) {
-        throw new Error(supabaseError.message);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      const data = await response.json();
+      console.log('Received signals data:', data);
       
       setSignals(data?.signals || []);
       setError(null);
