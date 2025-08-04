@@ -3,94 +3,38 @@ import { ChevronDown } from 'lucide-react';
 import { SignalCard } from './SignalCard';
 import { TradingSignal } from '@/types/trading';
 
-// Mock data for demonstration
-const mockSignals: TradingSignal[] = [
-  {
-    id: '1',
-    timestamp: Date.now() - 30000, // 30 seconds ago
-    tokenSymbol: 'BONK',
-    tokenAddress: '0x123...',
-    walletAddress: '0x7e3f...8a21',
-    winPercentage: 92,
-    buySize: 4.85,
-    entryMarketCap: 340000,
-    currentROI: 32.5,
-    marketCap: 6800000,
-    volume24h: 1200000,
-    totalHolders: 2145,
-    riskLevel: 'LOW',
-    signalType: 'buy',
-    source: 'pump.fun'
-  },
-  {
-    id: '2',
-    timestamp: Date.now() - 1080000, // 18 minutes ago
-    tokenSymbol: 'MEME',
-    tokenAddress: '0x456...',
-    walletAddress: 'WhalHuntr4',
-    winPercentage: 87,
-    buySize: 3.22,
-    entryMarketCap: 128000,
-    currentROI: 78.3,
-    marketCap: 6800000,
-    volume24h: 1200000,
-    totalHolders: 2145,
-    riskLevel: 'MEDIUM',
-    signalType: 'buy',
-    alertType: 'Token Pump',
-    source: 'Maestro'
-  },
-  {
-    id: '3',
-    timestamp: Date.now() - 2520000, // 42 minutes ago
-    tokenSymbol: 'SOL20',
-    tokenAddress: '0x789...',
-    walletAddress: 'WhalHuntr4',
-    winPercentage: 87,
-    buySize: 3.22,
-    entryMarketCap: 128000,
-    currentROI: 78.3,
-    marketCap: 6800000,
-    volume24h: 1200000,
-    totalHolders: 2145,
-    riskLevel: 'LOW',
-    signalType: 'buy',
-    source: 'BullX'
-  },
-  {
-    id: '4',
-    timestamp: Date.now() - 7560000, // 2 hours 6 minutes ago
-    tokenSymbol: 'DEGEN',
-    tokenAddress: '0xabc...',
-    walletAddress: '0x3c9e...2f14',
-    winPercentage: 76,
-    buySize: 2.56,
-    entryMarketCap: 85000,
-    currentROI: -12.8,
-    marketCap: 6800000,
-    volume24h: 1200000,
-    totalHolders: 2145,
-    riskLevel: 'HIGH',
-    signalType: 'buy',
-    source: 'pump.fun'
-  }
-];
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const API_BASE = `${SUPABASE_URL}/functions/v1`;
 
 export function SignalFeed() {
-  const [signals, setSignals] = useState<TradingSignal[]>(mockSignals);
+  const [signals, setSignals] = useState<TradingSignal[]>([]);
   const [selectedFilter, setSelectedFilter] = useState('All Signals');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulate real-time updates
+  // Fetch signals from API
+  const fetchSignals = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/signals`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch signals');
+      }
+      const data = await response.json();
+      setSignals(data.signals || []);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching signals:', err);
+      setError('Failed to load signals');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch signals on component mount and then every 3 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      // In a real app, this would be replaced with WebSocket or Server-Sent Events
-      // For now, we'll just update timestamps to show "live" behavior
-      setSignals(prev => prev.map(signal => ({
-        ...signal,
-        timestamp: signal.timestamp // Keep original for demo
-      })));
-    }, 30000); // Update every 30 seconds
-
+    fetchSignals();
+    
+    const interval = setInterval(fetchSignals, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -121,6 +65,33 @@ export function SignalFeed() {
 
       {/* Signal Cards */}
       <div className="space-y-4">
+        {loading && (
+          <div className="text-center py-8">
+            <div className="text-muted-foreground">Loading signals...</div>
+          </div>
+        )}
+        
+        {error && (
+          <div className="text-center py-8">
+            <div className="text-destructive">{error}</div>
+            <button 
+              onClick={fetchSignals}
+              className="text-primary hover:text-primary/80 text-sm font-medium transition-colors mt-2"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        
+        {!loading && !error && signals.length === 0 && (
+          <div className="text-center py-8">
+            <div className="text-muted-foreground">No signals yet. Send some data to the API!</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              POST to: {API_BASE}/signals
+            </div>
+          </div>
+        )}
+        
         {signals.map((signal) => (
           <SignalCard key={signal.id} signal={signal} />
         ))}
