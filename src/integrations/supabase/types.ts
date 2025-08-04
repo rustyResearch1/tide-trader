@@ -17,8 +17,13 @@ export type Database = {
       signals: {
         Row: {
           age: string | null
+          age_minutes: number | null
           alert_type: string | null
+          api_version: string | null
+          ath_fdv: number | null
+          avg_holder_age: string | null
           buy_size: number | null
+          buys_24h: string | null
           created_at: string | null
           current_roi: number | null
           defined_url: string | null
@@ -26,13 +31,24 @@ export type Database = {
           entry_market_cap: number | null
           fdv: number | null
           fresh_wallet_percentage: number | null
+          fresh_wallets_1d: string | null
+          fresh_wallets_7d: string | null
           has_image: boolean | null
+          has_twitter: boolean | null
+          has_website: boolean | null
           id: string
           liquidity_amount: number | null
+          liquidity_ratio: string | null
           lp_percentage: number | null
           market_cap: number | null
+          original_message: string | null
+          original_wallets: Json | null
+          percent_change_1h: string | null
+          platform: string | null
           price_usd: number | null
+          rick_analysis: string | null
           risk_level: string | null
+          sells_24h: string | null
           signal_type: string
           source: string | null
           timestamp: number
@@ -49,8 +65,13 @@ export type Database = {
         }
         Insert: {
           age?: string | null
+          age_minutes?: number | null
           alert_type?: string | null
+          api_version?: string | null
+          ath_fdv?: number | null
+          avg_holder_age?: string | null
           buy_size?: number | null
+          buys_24h?: string | null
           created_at?: string | null
           current_roi?: number | null
           defined_url?: string | null
@@ -58,13 +79,24 @@ export type Database = {
           entry_market_cap?: number | null
           fdv?: number | null
           fresh_wallet_percentage?: number | null
+          fresh_wallets_1d?: string | null
+          fresh_wallets_7d?: string | null
           has_image?: boolean | null
+          has_twitter?: boolean | null
+          has_website?: boolean | null
           id?: string
           liquidity_amount?: number | null
+          liquidity_ratio?: string | null
           lp_percentage?: number | null
           market_cap?: number | null
+          original_message?: string | null
+          original_wallets?: Json | null
+          percent_change_1h?: string | null
+          platform?: string | null
           price_usd?: number | null
+          rick_analysis?: string | null
           risk_level?: string | null
+          sells_24h?: string | null
           signal_type: string
           source?: string | null
           timestamp: number
@@ -81,8 +113,13 @@ export type Database = {
         }
         Update: {
           age?: string | null
+          age_minutes?: number | null
           alert_type?: string | null
+          api_version?: string | null
+          ath_fdv?: number | null
+          avg_holder_age?: string | null
           buy_size?: number | null
+          buys_24h?: string | null
           created_at?: string | null
           current_roi?: number | null
           defined_url?: string | null
@@ -90,13 +127,24 @@ export type Database = {
           entry_market_cap?: number | null
           fdv?: number | null
           fresh_wallet_percentage?: number | null
+          fresh_wallets_1d?: string | null
+          fresh_wallets_7d?: string | null
           has_image?: boolean | null
+          has_twitter?: boolean | null
+          has_website?: boolean | null
           id?: string
           liquidity_amount?: number | null
+          liquidity_ratio?: string | null
           lp_percentage?: number | null
           market_cap?: number | null
+          original_message?: string | null
+          original_wallets?: Json | null
+          percent_change_1h?: string | null
+          platform?: string | null
           price_usd?: number | null
+          rick_analysis?: string | null
           risk_level?: string | null
+          sells_24h?: string | null
           signal_type?: string
           source?: string | null
           timestamp?: number
