@@ -28,6 +28,12 @@ export interface TradingSignal {
   signalType: 'buy' | 'sell' | 'alert';
   alertType?: string;
   source?: string;
+  percentChange1h?: string;
+  liquidityRatio?: string;
+  buys24h?: string;
+  sells24h?: string;
+  freshWallets1d?: string;
+  freshWallets7d?: string;
 }
 
 export interface SmartWallet {

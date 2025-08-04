@@ -32,6 +32,27 @@ export function SignalCard({ signal }: SignalCardProps) {
     return `$${num.toFixed(2)}`;
   };
 
+  const formatVolume = (num: number | null | undefined) => {
+    if (num == null) return '$0';
+    if (num >= 1000000000) return `$${(num / 1000000000).toFixed(1)}B`;
+    if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `$${(num / 1000).toFixed(0)}K`;
+    return `$${num.toFixed(0)}`;
+  };
+
+  const formatPercentage = (percent: string | null | undefined) => {
+    if (!percent) return 'N/A';
+    return percent.includes('%') ? percent : `${percent}%`;
+  };
+
+  const getPercentageColor = (percent: string | null | undefined) => {
+    if (!percent) return 'text-muted-foreground';
+    const numValue = parseFloat(percent.replace(/[+%]/g, ''));
+    if (numValue > 0) return 'text-success';
+    if (numValue < 0) return 'text-danger';
+    return 'text-muted-foreground';
+  };
+
   const formatSOL = (amount: number | null | undefined) => {
     if (amount == null) return '0.00 SOL';
     return `${amount.toFixed(2)} SOL`;
@@ -103,23 +124,29 @@ export function SignalCard({ signal }: SignalCardProps) {
         </Badge>
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-muted/30 rounded-lg">
+      {/* Main Metrics Grid */}
+      <div className="grid grid-cols-4 gap-3 mb-4 p-3 bg-muted/30 rounded-lg">
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Buy Size</div>
-          <div className="font-semibold text-foreground">
-            {formatSOL(signal.buySize)}
+          <div className="text-xs text-muted-foreground mb-1">Price</div>
+          <div className="font-semibold text-foreground text-sm">
+            ${signal.priceUSD != null ? signal.priceUSD.toFixed(6) : 'N/A'}
           </div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground mb-1">Entry Mcap</div>
-          <div className="font-semibold text-foreground">
-            {formatNumber(signal.entryMarketCap)}
+          <div className="text-xs text-muted-foreground mb-1">24h Volume</div>
+          <div className="font-semibold text-foreground text-sm">
+            {formatVolume(signal.volume24h)}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">1H Change</div>
+          <div className={`font-semibold text-sm ${getPercentageColor(signal.percentChange1h)}`}>
+            {formatPercentage(signal.percentChange1h)}
           </div>
         </div>
         <div>
           <div className="text-xs text-muted-foreground mb-1">Current ROI</div>
-          <div className={`font-semibold ${
+          <div className={`font-semibold text-sm ${
             (signal.currentROI ?? 0) >= 0 ? 'text-success' : 'text-danger'
           }`}>
             {(signal.currentROI ?? 0) >= 0 ? '+' : ''}{(signal.currentROI ?? 0).toFixed(1)}%
@@ -127,57 +154,144 @@ export function SignalCard({ signal }: SignalCardProps) {
         </div>
       </div>
 
-      {/* Token Details */}
-      {signal.marketCap && (
-        <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
-          <div className="space-y-1">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Market Cap:</span>
-              <span className="text-foreground">{formatNumber(signal.marketCap)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">24h Volume:</span>
-              <span className="text-foreground">{formatNumber(signal.volume24h || 0)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Holders:</span>
-              <span className="text-foreground">{signal.totalHolders?.toLocaleString() || 'N/A'}</span>
-            </div>
+      {/* Trading Metrics */}
+      <div className="grid grid-cols-3 gap-3 mb-4 p-3 bg-muted/20 rounded-lg">
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Buy Size</div>
+          <div className="font-semibold text-foreground text-sm">
+            {formatSOL(signal.buySize)}
           </div>
-          <div className="space-y-1">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Price:</span>
-              <span className="text-foreground">${signal.priceUSD != null ? signal.priceUSD.toFixed(6) : 'N/A'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Age:</span>
-              <span className="text-foreground">{signal.age || 'N/A'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Risk:</span>
-              <span className={getRiskColor(signal.riskLevel || 'MEDIUM')}>
-                {signal.riskLevel || 'MEDIUM'}
-              </span>
-            </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Entry Mcap</div>
+          <div className="font-semibold text-foreground text-sm">
+            {formatNumber(signal.entryMarketCap)}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Market Cap</div>
+          <div className="font-semibold text-foreground text-sm">
+            {formatNumber(signal.marketCap)}
+          </div>
+        </div>
+      </div>
+
+      {/* Liquidity & Activity Details */}
+      <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+        <div className="space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Liquidity:</span>
+            <span className="text-foreground">{formatNumber(signal.liquidityAmount)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Liquidity Ratio:</span>
+            <span className="text-foreground">{signal.liquidityRatio || 'N/A'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">LP Percentage:</span>
+            <span className="text-foreground">{signal.lpPercentage != null ? `${signal.lpPercentage}%` : 'N/A'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Age:</span>
+            <span className="text-foreground">{signal.age || 'N/A'}</span>
+          </div>
+        </div>
+        <div className="space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Buys 24h:</span>
+            <span className="text-foreground">{signal.buys24h || 'N/A'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Sells 24h:</span>
+            <span className="text-foreground">{signal.sells24h || 'N/A'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Holders:</span>
+            <span className="text-foreground">{signal.totalHolders?.toLocaleString() || 'N/A'}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Risk:</span>
+            <span className={getRiskColor(signal.riskLevel || 'MEDIUM')}>
+              {signal.riskLevel || 'MEDIUM'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Fresh Wallet Analysis */}
+      {(signal.freshWalletPercentage || signal.freshWallets1d || signal.freshWallets7d) && (
+        <div className="mb-4 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+          <div className="text-xs font-medium text-warning mb-2">Fresh Wallet Analysis</div>
+          <div className="grid grid-cols-3 gap-3 text-xs">
+            {signal.freshWalletPercentage && (
+              <div>
+                <span className="text-muted-foreground">Fresh Wallets:</span>
+                <span className="ml-1 text-foreground">{signal.freshWalletPercentage}%</span>
+              </div>
+            )}
+            {signal.freshWallets1d && (
+              <div>
+                <span className="text-muted-foreground">1d Fresh:</span>
+                <span className="ml-1 text-foreground">{signal.freshWallets1d}</span>
+              </div>
+            )}
+            {signal.freshWallets7d && (
+              <div>
+                <span className="text-muted-foreground">7d Fresh:</span>
+                <span className="ml-1 text-foreground">{signal.freshWallets7d}</span>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="flex-1">
-          <ExternalLink className="h-3 w-3 mr-1" />
-          View Chart
-        </Button>
+        {signal.dexscreenerUrl ? (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => window.open(signal.dexscreenerUrl, '_blank')}
+          >
+            <ExternalLink className="h-3 w-3 mr-1" />
+            DexScreener
+          </Button>
+        ) : signal.definedUrl ? (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => window.open(signal.definedUrl, '_blank')}
+          >
+            <ExternalLink className="h-3 w-3 mr-1" />
+            Defined
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" className="flex-1" disabled>
+            <ExternalLink className="h-3 w-3 mr-1" />
+            View Chart
+          </Button>
+        )}
         
         {signal.twitterUrl && (
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => window.open(signal.twitterUrl, '_blank')}
+            className="hover:bg-blue-500/10 hover:text-blue-500"
+          >
             <Twitter className="h-3 w-3" />
           </Button>
         )}
         
         {signal.websiteUrl && (
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => window.open(signal.websiteUrl, '_blank')}
+            className="hover:bg-primary/10"
+          >
             <Globe className="h-3 w-3" />
           </Button>
         )}
