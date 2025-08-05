@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { WalletButton } from '@/components/WalletButton';
 
 export function DashboardHeader() {
   return (
@@ -39,9 +40,7 @@ export function DashboardHeader() {
             <div className="w-2 h-2 bg-primary rounded-full mr-2"></div>
             Connect Bot
           </Button>
-          <Button className="bg-gradient-primary hover:opacity-90">
-            Connect Wallet
-          </Button>
+          <WalletButton />
         </div>
       </div>
     </header>

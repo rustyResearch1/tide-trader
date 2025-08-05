@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { ExternalLink, Bookmark, BookmarkCheck, TrendingUp, AlertTriangle, Globe, Twitter } from 'lucide-react';
+import { ExternalLink, Bookmark, BookmarkCheck, TrendingUp, AlertTriangle, Globe, Twitter, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TradingSignal } from '@/types/trading';
+import { QuickBuyModal } from '@/components/QuickBuyModal';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface SignalCardProps {
   signal: TradingSignal;
@@ -10,6 +12,9 @@ interface SignalCardProps {
 
 export function SignalCard({ signal }: SignalCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [showQuickBuy, setShowQuickBuy] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const { connected } = useWallet();
 
   const formatTimeAgo = (timestamp: number) => {
     const now = Date.now();
@@ -77,7 +82,25 @@ export function SignalCard({ signal }: SignalCardProps) {
   };
 
   return (
-    <div className="bg-gradient-card border border-border/50 rounded-lg p-4 hover:border-primary/20 transition-all duration-200">
+    <>
+      <div 
+        className="bg-gradient-card border border-border/50 rounded-lg p-4 hover:border-primary/20 transition-all duration-200 relative group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Quick Buy Button - Shows on hover */}
+        {isHovered && (
+          <div className="absolute top-2 right-2 z-10">
+            <Button
+              size="sm"
+              onClick={() => setShowQuickBuy(true)}
+              className="bg-gradient-success hover:opacity-90 shadow-lg"
+            >
+              <Zap className="h-3 w-3 mr-1" />
+              Quick Buy
+            </Button>
+          </div>
+        )}
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -306,6 +329,13 @@ export function SignalCard({ signal }: SignalCardProps) {
           </Button>
         )}
       </div>
-    </div>
+      </div>
+      
+      <QuickBuyModal
+        signal={signal}
+        isOpen={showQuickBuy}
+        onClose={() => setShowQuickBuy(false)}
+      />
+    </>
   );
 }
